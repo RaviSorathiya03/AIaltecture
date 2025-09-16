@@ -1,0 +1,53 @@
+model User {
+  id          String    @id @default(cuid())
+  name        String?
+  email       String    @unique
+  image       String?
+  projects    Project[]
+  createdAt   DateTime  @default(now())
+}
+
+model Project {
+  id          String    @id @default(cuid())
+  name        String
+  description String?
+  owner       User      @relation(fields: [ownerId], references: [id])
+  ownerId     String
+  nodes       Node[]
+  edges       Edge[]
+  versions    Version[]
+  isPublic    Boolean   @default(false)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model Node {
+  id          String    @id @default(cuid())
+  project     Project   @relation(fields: [projectId], references: [id])
+  projectId   String
+  type        String    // "database", "service", "queue"
+  label       String
+  positionX   Float
+  positionY   Float
+  data        Json      // store custom props like color, size, metadata
+  createdAt   DateTime  @default(now())
+}
+
+model Edge {
+  id          String    @id @default(cuid())
+  project     Project   @relation(fields: [projectId], references: [id])
+  projectId   String
+  sourceNode  String
+  targetNode  String
+  label       String?
+  data        Json?
+}
+
+model Version {
+  id          String    @id @default(cuid())
+  project     Project   @relation(fields: [projectId], references: [id])
+  projectId   String
+  nodes       Json      // snapshot of nodes
+  edges       Json      // snapshot of edges
+  createdAt   DateTime  @default(now())
+}
